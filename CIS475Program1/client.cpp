@@ -11,9 +11,10 @@
 
 using namespace std;
 
-#define SERVER_PORT 6011
+#define SERVER_PORT 1337
 #define MAX_LINE 1000
 
+void printMessage(int);
 int main(int argcount, char* argvector[])
 {
 	struct sockaddr_in sockaddress;
@@ -23,7 +24,6 @@ int main(int argcount, char* argvector[])
 	string command;
 	char sBuffer[MAX_LINE];
 	char rBuffer[MAX_LINE];
-	char listBuffer[MAX_LINE];
 
 	// verify client provided host IP address.
 	if (argcount < 2)
@@ -55,44 +55,51 @@ int main(int argcount, char* argvector[])
 
 	while (fgets(sBuffer, sizeof(sBuffer), stdin))
 	{
-		while (sBuffer[bufferIndex] != ' ')
+		while (sBuffer[bufferIndex] != ' ' && sBuffer[bufferIndex] != '\n')
 		{
 			command += toupper(sBuffer[bufferIndex]);
 			++bufferIndex;
 		}
-		
+
 		if (command == "QUIT")
 		{
 			send(socketfd, sBuffer, sizeof(sBuffer), 0);
-			recv(socketfd, rBuffer, sizeof(rBuffer), 0);
-			cout << rBuffer << endl;
+			printMessage(socketfd);
 			exit(1);
 		}
-		else if (command == "ADD")
+		else if  (command == "ADD")
 		{
 			send(socketfd, sBuffer, sizeof(sBuffer), 0);
-			recv(socketfd, rBuffer, sizeof(rBuffer), 0);
-			cout << rBuffer << endl;
+			printMessage(socketfd);
 		}
 		else if (command == "SHUTDOWN")
 		{
 			send(socketfd, sBuffer, sizeof(sBuffer), 0);
-			recv(socketfd, rBuffer, sizeof(rBuffer), 0);
-			cout << rBuffer << endl;
+			printMessage(socketfd);
 		}
 		else if (command == "LIST")
 		{
 			send(socketfd, sBuffer, sizeof(sBuffer), 0);
-			recv(socketfd, listBuffer, sizeof(listBuffer), 0);
-			cout << listBuffer;
+			printMessage(socketfd);
+		}
+		else if (command == "DELETE")
+		{
+			send(socketfd, sBuffer, sizeof(sBuffer), 0);
+			printMessage(socketfd);
 		}
 		else
 		{
-			command.clear();
-			bufferIndex = 0;
-
+			send(socketfd, sBuffer, sizeof(sBuffer), 0);
+			printMessage(socketfd);
 		}
 		command.clear();
 		bufferIndex = 0;
 	}
+}
+
+void printMessage(int socketNum)
+{
+	char recBuffer[1000];
+	recv(socketNum, recBuffer, sizeof(recBuffer), 0);
+	cout << recBuffer << endl;
 }
